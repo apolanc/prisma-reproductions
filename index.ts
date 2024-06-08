@@ -1,25 +1,29 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient({
-  log: ["query"],
+  log: [{ level: 'query', emit: 'event' }],
 });
 
-async function test() {
-  const res = await prisma.customer.findFirst();
-  console.log(res);
+prisma.$on('query', (e) => {
+  console.log('Query: ' + e.query)
+  console.log('Params: ' + e.params)
+})
 
-  await prisma.user.deleteMany();
-  await prisma.invoice.deleteMany();
-  await prisma.customer.deleteMany();
-  await prisma.revenue.deleteMany();
-
-  return res;
+async function sqliteContains() {
+  const res = await prisma.customer
+    .findMany({
+      where: {
+        name: {
+          contains: '%' // find all
+          // contains: '\\%' // find all
+        }
+      }
+    });
+   console.log(res);
 }
 
 async function main() {
-  // console.log(process.env.DATABASE_URL);
-  // await populate();
-  return test();
+  return sqliteContains();
 }
 
 main()
