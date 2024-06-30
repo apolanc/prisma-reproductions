@@ -8,7 +8,7 @@
     "prisma:version": "npm i prisma@$PRISMA_VERSION @prisma/client@$PRISMA_VERSION",
     "prisma:dev": "npm i prisma@dev @prisma/client@dev",
     "ts:latest": "npm i ts-node@latest typescript@latest",
-    "archive": "rm -rf migrations_archive && mv ./migrations ./migrations_archive",
+    "archive": "rm -rf ./prisma/migrations_archive && mv ./prisma/migrations ./prisma/migrations_archive",
     "test": "ts-node index.ts",
     "start-dbs": "docker-compose up -d",
     "stop-dbs": "docker-componse down",

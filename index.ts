@@ -1,29 +1,41 @@
 import { PrismaClient } from "@prisma/client";
-
 const prisma = new PrismaClient({
-  log: ["query"],
+  log: [
+    {
+      emit: 'event',
+      level: 'query',
+    },
+  ],
 });
 
-async function test() {
-  const res = await prisma.customer.findFirst();
-  console.log(res);
-
-  await prisma.user.deleteMany();
-  await prisma.invoice.deleteMany();
-  await prisma.customer.deleteMany();
-  await prisma.revenue.deleteMany();
-
-  return res;
-}
-
 async function main() {
-  // console.log(process.env.DATABASE_URL);
-  // await populate();
-  return test();
+  const searchText = 'First Sec';
+  
+  try {
+    const countries = await prisma.country.findMany({
+      where: {
+        name: {
+          contains: searchText,
+          mode: 'insensitive',
+        },
+      },
+      orderBy: {
+        _relevance: {
+          fields: ['name'],
+          search: searchText,
+          sort: 'desc',
+        },
+      },
+      take: 10,
+    });
+    console.log(countries);
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
-
-main()
-  .catch((e) => console.error(e))
-  .finally(async () => {
-    prisma.$disconnect;
-  });
+prisma.$on('query', (e) => {
+  console.log('Params: ' + e.params)
+})
+main();

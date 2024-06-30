@@ -1,38 +1,33 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String @id @default(cuid())
-  name     String
-  email    String @unique
-  password String @unique
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
-model Invoice {
-  id         String    @id @default(cuid())
-  amount     Int
-  status     String
-  date       String
-  customer   Customer? @relation(fields: [customerId], references: [id])
-  customerId String?
+model Country {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  cities City[]
 }
 
-model Customer {
-  id        String    @id @default(cuid())
+model City {
+  id        Int        @id @default(autoincrement())
   name      String
-  email     String
-  image_url String
-  invoices  Invoice[]
+  region    String
+  countryId Int
+  country   Country    @relation(fields: [countryId], references: [id])
+  locations Location[]
 }
 
-model Revenue {
-  id      String @id @default(cuid())
-  month   String
-  revenue Int
+model Location {
+  id        String  @id @default(uuid())
+  cityId    Int
+  city      City    @relation(fields: [cityId], references: [id])
+  address   String?
+  latitude  Float?
+  longitude Float?
 }
